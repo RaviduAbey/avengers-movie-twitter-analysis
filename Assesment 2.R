@@ -8,9 +8,9 @@ library(purrr)
 
 # Set up AWS credentials
 Sys.setenv (
-  "AWS_ACCESS_KEY_ID" = "AKIAULC7Z3LRGWACXKVK",
-  "AWS_SECRET_ACCESS_KEY" = "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",
-  "AWS_DEFAULT_REGION" = "ap-southeast-2"
+  "AWS_ACCESS_KEY_ID" = "x",
+  "AWS_SECRET_ACCESS_KEY" = "x",
+  "AWS_DEFAULT_REGION" = "x"
 )
 # Section 3: Image Recognition for Text in Image Task
 # Initialize connection to AWS S3
