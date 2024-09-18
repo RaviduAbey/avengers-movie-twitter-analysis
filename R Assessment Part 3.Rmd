@@ -1,0 +1,406 @@
+---
+title: "Assessment 1"
+author: "Ravidu Sadaruwan Abeywardana - s4616625"
+date: "2023-10-12"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Assessment 1**
+
+## Part 1
+
+```{r}
+# Load necessary libraries
+library(readr)  
+library(dplyr)  
+
+# Read a CSV file
+data <- read_csv("Avengers.csv")  
+
+# Remove duplicated tweets from the 'text' column
+Avengers_unique <- data[!duplicated(data$text), ]
+
+# Select specific columns
+clean_data <- Avengers_unique %>%
+  select(text, favoriteCount, created, retweetCount, statusSource, screenName, isRetweet)
+
+# Write clean data to a new CSV file
+write_csv(clean_data, "clean_Avengers.csv")
+
+```
+
+This **R code snippet** loads necessary libraries, reads a CSV file named "Avengers.csv" into a variable called data, removes duplicate entries, and selects specific columns to create a cleaned dataset stored in clean_data.
+
+# Part 2
+
+1.  Displaying first 10 Tweets using Kable.
+
+```{r}
+# Load the 'kableExtra' library for table styling
+library(kableExtra)
+
+# convert text encoding to UTF-8
+clean_data$text <- iconv(clean_data$text, from = "UTF-8", to = "UTF-8", sub = "") 
+
+#Create a table displaying the first 10 tweets in HTML format
+kable(head(clean_data, 10), format = "html", escape = FALSE) %>%
+  kable_styling(full_width = FALSE) %>%
+  kableExtra::kable_classic()
+
+```
+
+2.  Identifying the most first 20 retweeted tweets.
+
+```{r}
+# Sort the data by retweetCount in descending order and select the top 20
+top_retweeted_tweets <- clean_data %>%
+  arrange(desc(retweetCount)) %>%
+  head(20)
+
+# Print the top retweeted tweets
+kable(top_retweeted_tweets, format = "html", escape = FALSE) %>%
+  kable_styling(full_width = FALSE) %>%
+  kableExtra::kable_classic()
+
+```
+
+The top 20 retweeted tweets about "AvengersEndgame" on Twitter were mostly official announcements, trailers, and ads for the movie. These tweets got a lot of attention and excitement as it was shared by famous accounts like Marvel Studios and the cast. Pictures and videos, like trailers and posters, were especially good at getting people interested. Visual elements like trailers and posters played a crucial role in engaging the audience. hash tags like #AvengersEndgame, #AvengeTheFallen always reminded everyone about the movie and it's release date, April 26, which made fans feel more connected and eager.
+
+3.  Identifying the most liked tweets and presenting the first 15 tweets.
+
+```{r}
+# Sort the data by favoriteCount in descending order and select the top 15
+top_liked_tweets <- clean_data %>%
+  arrange(desc(favoriteCount)) %>%
+  head(15)
+
+# Print the top liked tweets
+kable(top_liked_tweets, format = "html", escape = FALSE) %>%
+  kable_styling(full_width = FALSE) %>%
+  kableExtra::kable_classic()
+
+```
+
+The top 15 most liked tweets about "AvengersEndgame" cover a wide range of topics, including promotions, fan interactions, and discussions about the film's cultural impact. Official Marvel accounts (@Avengers, @MarvelStudios) receive a lot of likes, indicating a dedicated fanbase eagerly awaiting the film. Also, tweets with special stuff(exclusive content or behind-the-scenes), like the limited edition OPPO F11 Pro, got a ton of attention indicating fans really like exclusive things related to their favorite franchises. Contests and giveaways, like the one by @hmvtweets, were a big hit. This tells us that fans enjoy chances to be a part of the franchise and maybe win cool stuff. When fans like @CevansOfficial and @TeamDowney1965 express how excited they are, it shows an emotional connection to the film. when @filmfare said that "AvengersEndgame" sold 1 million advance tickets in India, it proves how hugely popular the movie was worldwide.
+
+4.  Identifying the top 5 tweeters.
+
+```{r}
+library(ggplot2)
+
+# Group by screenName and count the number of tweets
+top_tweeters <- clean_data %>%
+  group_by(screenName) %>%
+  summarize(tweet_count = n()) %>%
+  arrange(desc(tweet_count)) %>%
+  head(5)
+
+# Create a bar plot to visualize the top tweeters
+ggplot(top_tweeters, aes(x = reorder(screenName, tweet_count), y = tweet_count)) +
+  geom_bar(stat = "identity", fill = "skyblue", width = 0.7) +
+  labs(title = "Top Tweeters",
+       x = "Screen Name",
+       y = "Tweet Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_flip()
+
+```
+
+VinayKu48005726 stands out as the most active tweeter in discussions about the Avengers, with an impressive 35 tweets. This shows a strong level of interest and engagement in the topic. Following closely are Yaris\_\_omar, WoOoW_NewEra, strong_avenger1, and VaitheesGVW, who also contribute significantly with tweet counts of 21, 17, 14, and 12 respectively. Their participation is instrumental in influencing the overall conversation about the Avengers.
+
+5.  Identifying top hashtags in the data set and presenting the first 10.
+
+```{r}
+# Load necessary libraries
+library(tidytext)
+library(tidyverse)
+
+# Extract hashtags from the tweets in clean_data
+clean_data <- clean_data %>%
+  mutate(hashtags = str_extract_all(text, "#\\w+")) %>%
+  unnest(hashtags)
+
+# Count the frequency of each hashtag
+top_hashtags <- clean_data %>%
+  count(hashtags, sort = TRUE)
+
+# Display the top 10 hashtags
+top_10_hashtags <- head(top_hashtags, 10)
+
+# Create a table using kable
+kable(top_10_hashtags, 
+      caption = "Top 10 Mentions", 
+      col.names = c("Mentioned User", "Frequency")) %>%
+  kable_styling(full_width = FALSE)
+```
+
+The top hashtags show what people talk about the most. **#AvengersEndgame** is the most popular, which indicates a substantial focus on discussions surrounding the film. Other hashtags like **#Avengers**, **#CaptainAmerica**, and #Thor are also important because they talk about specific characters in the Avengers. People use different capital letters in hashtags (like **#AvengersEndGame** or **#avengersendgame**), which might mean different groups of people are talking about it. There are also special hashtags like **#AvengersEndgameOnTicketNew** and **#AvengersArmyAtPVR**, which may suggest coordinated marketing efforts, likely tied to ticket sales and promotional events.
+
+5.  Identifying top mentions in the data set and presenting the first 10.
+
+```{r}
+# Extract mentions from the tweets in clean_data
+clean_data <- clean_data %>%
+  mutate(mentions = str_extract_all(text, "@\\w+")) %>%
+  unnest(mentions)
+
+# Count the frequency of each mention
+top_mentions <- clean_data %>%
+  count(mentions, sort = TRUE)
+
+# Display the top 10 mentions
+top_10_mentions <- head(top_mentions, 10)
+print(top_10_mentions)
+```
+
+The top mentions in discussions about "AvengersEndgame" highlight key players and entities. @TicketNew, @_PVRCinemas and @mirajCinemas played a significant role, indicating the importance of ticketing platforms. Additionally, mentions of @oppomobileindia suggest a likely promotional partnership.
+
+7.  The most common sources (e.g., Twitter clients, devices) of the tweets.
+
+```{r}
+# Group by statusSource and count the number of tweets from each source
+source_counts <- clean_data %>%
+  group_by(statusSource) %>%
+  summarise(tweet_count = n()) %>%
+  arrange(desc(tweet_count))
+
+# Display the top 10 sources
+top_sources <- head(source_counts, 5)
+
+# Replace the URLs with more readable labels
+top_sources$statusSource <- sub(".*Android.*", "Android", top_sources$statusSource)
+top_sources$statusSource <- sub(".*iPhone.*", "iPhone", top_sources$statusSource)
+top_sources$statusSource <- sub(".*Web Client.*", "Web", top_sources$statusSource)
+top_sources$statusSource <- sub(".*Web App.*", "Web App", top_sources$statusSource)
+top_sources$statusSource <- sub(".*Instagram.*", "Instagram", top_sources$statusSource)
+top_sources$statusSource <- sub(".*TweetDeck.*", "TweetDeck", top_sources$statusSource)
+top_sources$statusSource <- sub(".*iPad.*", "iPad", top_sources$statusSource)
+top_sources$statusSource <- sub(".*wherearealiens.*", "wherearealiens", top_sources$statusSource)
+top_sources$statusSource <- sub(".*autotweet scheduler.*", "autotweet scheduler", top_sources$statusSource)
+top_sources$statusSource <- sub(".*IFTTT.*", "IFTTT", top_sources$statusSource)
+
+# Create a bar plot of the most common tweet sources
+ggplot(top_sources, aes(x = reorder(statusSource, tweet_count), y = tweet_count)) +
+  geom_bar(stat = "identity", fill = "skyblue", width = 0.7) +
+  labs(title = "Top Tweet Sources",
+       x = "Source",
+       y = "Tweet Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_flip()
+```
+
+A significant number of tweets coming from Android devices, indicating a large user base on this platform. iPhone users also contribute substantially, reflecting active engagement from Apple's user community. Tweets from web clients and apps suggest some users prefer engaging through browsers and tweetdecks.
+
+8.  Finding out the Most Number of Tweets per Hero in Avengers
+
+```{r}
+# Load necessary libraries
+library(wordcloud2)
+library(stringr)
+
+# Define a list of Avengers heroes (modify as needed)
+avengers_heroes <- c("Iron Man", "Captain America", "Thor", "Hulk", "Black Widow", "Hawkeye", 
+                     "Black Panther", "Spider-Man", "Doctor Strange", "Ant-Man", "Wasp", 
+                     "Captain Marvel", "Falcon", "Winter Soldier", "Scarlet Witch", 
+                     "Vision", "War Machine", "Star-Lord", "Gamora", "Drax", "Rocket", 
+                     "Groot", "Nebula", "Mantis")
+
+# Extract heroes from the text
+clean_data <- clean_data %>%
+  mutate(mentioned_hero = str_extract(tolower(text), paste(tolower(avengers_heroes), collapse = "|")))
+
+# Filter out NA values
+clean_data <- clean_data[!is.na(clean_data$mentioned_hero),]
+
+# Count the frequency of each hero mention
+hero_counts <- clean_data %>%
+  count(mentioned_hero, sort = TRUE)
+
+# Create a word cloud
+wordcloud2(hero_counts, color = "random-light", backgroundColor = "white", size = 2)
+```
+
+The analysis of tweets mentioning Avengers heroes shows which characters are talked about the most. Thor is the most popular, likely because fans really like him and he might have a big role in the film. Iron Man and Vision are also mentioned a lot, probably because they're important in the Avengers story. On the other hand, characters like Black Panther and Scarlet Witch are talked about less, suggesting they might have smaller parts in the movie. This gives us an provides a snapshot of the fan interest and anticipation surrounding specific Avengers characters.
+
+9.  Basic sentiment Analysis
+
+```{r}
+
+# Load required libraries
+library(tidyverse)
+library(lubridate)
+library(textdata)
+library(RColorBrewer)
+library(wordcloud)
+library(wordcloud2)
+library(topicmodels)
+library(tm)
+library(gridExtra)
+
+# Preprocess the text
+tidy_tweets <- clean_data %>%
+  filter(!is.na(text)) %>%
+  mutate(text = tolower(text)) %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)
+
+# Get sentiment scores using Bing and NRC lexicons
+bing <- get_sentiments("bing")
+nrc <- get_sentiments("nrc")
+
+sentiments_bing <- tidy_tweets %>%
+  inner_join(bing) %>%
+  rename(sentiment_bing = sentiment)
+
+sentiments_nrc <- tidy_tweets %>%
+  inner_join(nrc) %>%
+  rename(sentiment_nrc = sentiment)
+
+# Analyze sentiment distribution
+sentiment_counts_bing <- sentiments_bing %>%
+  count(sentiment_bing, sort = TRUE)
+
+sentiment_counts_nrc <- sentiments_nrc %>%
+  count(sentiment_nrc, sort = TRUE)
+
+# Visualize sentiment distribution using Bing lexicon
+plot_bing <- ggplot(sentiment_counts_bing, aes(x = sentiment_bing, y = n, fill = sentiment_bing)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set3") +
+  labs(title = "Sentiment Distribution (Bing Lexicon)",
+       x = "Sentiment",
+       y = "Count")
+
+# Visualize sentiment distribution using NRC lexicon
+plot_nrc <- ggplot(sentiment_counts_nrc, aes(x = sentiment_nrc, y = n, fill = sentiment_nrc)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set3") +
+  labs(title = "Sentiment Distribution (NRC Lexicon)",
+       x = "Sentiment",
+       y = "Count")
+
+# Arrange plots side by side
+grid.arrange(plot_bing, plot_nrc, ncol = 2)
+
+```
+
+A basic sentiment analysis using Bing and NRC indicates a strong positive sentiment towards the film, with 280 positive sentiments and only 38 negative sentiments. This suggests a high level of anticipation and excitement for the movie.However, it's important to note that sentiment analysis alone may not always accurately represent the overall anticipation level for a film.
+
+# Part 3
+
+Performing LDA with 3 Topics
+
+```{r}
+# Set a seed for reproducibility
+set.seed(1234)
+
+# Load necessary libraries
+library("tidyverse")
+library("topicmodels")
+library("tidytext")
+
+# Convert text to lowercase and perform necessary preprocessing
+clean_data$text <- tolower(clean_data$text)
+corpus <- Corpus(VectorSource(clean_data$text))
+corpus <- tm_map(corpus, content_transformer(tolower))
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+dtm <- DocumentTermMatrix(corpus)
+
+# Perform LDA with 3 topics
+lda_model <- LDA(dtm, k = 3, method = "Gibbs", control = list(seed = 1234))
+
+# Convert LDA results to tidy format
+topics <- tidy(lda_model, matrix = "beta")
+
+# Get top terms for each topic
+top_terms <- topics %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 10) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+# Reorder terms within each topic based on beta
+top_terms <- top_terms %>%
+  mutate(term = reorder_within(term, beta, topic))
+
+# Create a grouped bar plot for top terms
+ggplot(top_terms, aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+Performing LDA with 6 topics
+
+```{r}
+# Perform LDA with 6 topics
+lda_model_6 <- LDA(dtm, k = 6, method = "Gibbs", control = list(seed = 1234))
+
+# Convert LDA results to tidy format
+topics_6 <- tidy(lda_model_6, matrix = "beta")
+
+# Get top terms for each topic
+top_terms_6 <- topics_6 %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 10) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+# Reorder terms within each topic based on beta
+top_terms_6 <- top_terms_6 %>%
+  mutate(term = reorder_within(term, beta, topic))
+
+# Create a grouped bar plot for top terms
+ggplot(top_terms_6, aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+Performing LDA with 10 topics
+
+```{r}
+# Perform LDA with 10 topics
+lda_model_10 <- LDA(dtm, k = 10, method = "Gibbs", control = list(seed = 1234))
+
+# Convert LDA results to tidy format
+topics_10 <- tidy(lda_model_10, matrix = "beta")
+
+# Get top terms for each topic
+top_terms_10 <- topics_10 %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 10) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+# Reorder terms within each topic based on beta
+top_terms_10 <- top_terms_10 %>%
+  mutate(term = reorder_within(term, beta, topic))
+
+# Create a grouped bar plot for top terms
+ggplot(top_terms_10, aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+
+```
+
+The different LDA models (3, 6, and 10 topics) give us different levels of detail about our data. The 6 topic model gives a nice mix of detail and easy-to-understand information. It tells us about a lot of different things like interactions, specific Marvel characters, and promotions without being too complicated. This makes it the best choice for understanding the dataset really well.
+
+The following conclusions can be drawn about the topics present in the dataset:
+
+-   Avengers and Marvel Characters: Regardless of the number of topics, terms related to Avengers and various Marvel characters consistently appear. This suggests a strong association with Marvel content.
+
+-   Cinemas and Promotions: Terms related to cinemas (e.g., Muktaa Cinemas, PVRCinemas) and promotional activities (e.g., Join, Abhishe) are recurrent themes, presenting a link with cinema-related content and promotions.
+
+-   Oppo Mobile India and Marvel Studios: These entities are consistently mentioned in relation to promotions and collaborations.
